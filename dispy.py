@@ -13,8 +13,10 @@ def disassemble(s):
 	while i < len(s.co_code):
 		op = ord(s.co_code[i])
 		r = opname[op] + ' '
-		if op >= 90: # these are the ones with args
-			oparg = ord(s.co_code[i+1]) | (ord(s.co_code[i+2]) << 8)
+		if op >= 90 and i + 2 < len(s.co_code): # these are the ones with args
+			oparg = ord(s.co_code[i+1])
+			if i + 2 < len(s.co_code):
+				oparg = oparg | (ord(s.co_code[i+2]) << 8)
 			r += int_to_str(oparg)
 			i += 2
 		i += 1
@@ -132,7 +134,7 @@ def write_code(f, c, indents):
 	if c.co_flags != 0:
 		f.write('\t' * (indents + 1))
 		f.write('flags ' + str(c.co_flags) + '\n')
-	
+
 	if len(c.co_consts) != 0:
 		f.write('\t' * (indents + 1))
 		f.write('consts ')
@@ -177,4 +179,7 @@ def write_code(f, c, indents):
 	f.write('end\n')
 
 if __name__ == "__main__":
+	if len(sys.argv) != 2:
+		print "Usage: pyasm.py file.pyc"
+		sys.exit(1)
 	disassemble_file(sys.argv[1])

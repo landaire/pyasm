@@ -36,11 +36,20 @@ def parse_file(filename):
 	return o
 
 def parse_int(i):
+	negate = False
+	value = None
+	if i[0] == '-':
+		negate = True
+		i = i[1:]
 	if i[:2] == '0x':
-		return int(i, 16)
+		value = int(i, 16)
 	elif i[:2] == '0b':
-		return int(i, 2)
-	return int(i)
+		value = int(i, 2)
+	else:
+		value = int(i)
+	if negate:
+		return -value
+	return value
 
 def read_line(f):
 	return f.readline().strip()
@@ -171,6 +180,25 @@ def assemble_instructions(f):
 				sio.seek(parse_int(l.split()[0]))
 				l = l.split(' ', 1)[1]
 			line = l.split()
+			if line[0].startswith('<'):
+				print("invalid instr")
+				print(line)
+				# Replace this instruction with a nop
+				print("nop")
+				sio.write(chr(opmap['NOP']))
+				# Replace the byte width of each arg with a nop
+				if len(line) == 2:
+					for arg in line[1].split(' '):
+						if arg[0].isdigit(): # oparg is an immediate value
+							oparg = parse_int(arg)
+							while oparg != 0:
+								print('nop')
+								sio.write(chr(opmap['NOP']))
+								oparg = oparg >> 8
+						else:
+							print(arg)
+							raise Exception('handle non-digit args for nops')
+				continue
 			sio.write(chr(opmap[line[0]]))
 			if len(line) == 2:
 				if line[1][0].isdigit(): # oparg is an immediate value
