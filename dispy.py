@@ -110,7 +110,7 @@ def generate_autocomment(c, instruction, oparg):
 			comment = str(c.co_varnames[oparg])
 		else:
 			comment = "Error: index outside of varnames"
-	elif instruction == opmap['LOAD_NAME'] or instruction == opmap['STORE_NAME']:
+	elif instruction == opmap['LOAD_NAME'] or instruction == opmap['STORE_NAME'] or instruction == opmap['LOAD_ATTR'] or instruction == opmap['IMPORT_NAME']:
 		if oparg < len(c.co_names):
 			comment = str(c.co_names[oparg])
 		else:
